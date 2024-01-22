@@ -3,6 +3,7 @@ on: [push]
 permissions:
   pages: write
   id-token: write
+  contents: read
 jobs:
   build:
     # Recommended if you intend to make multiple deployments in quick succession.
