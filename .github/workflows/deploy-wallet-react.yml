@@ -27,17 +27,6 @@ jobs:
         with:
           path: ./dist/apps/wallet-react
        
-      - name: Determine Page URL
-        id: deployment-url
-        run: |
-          OWNER=$(echo ${{ github.repository }} | cut -d'/' -f1)
-          REPO=$(echo ${{ github.repository }} | cut -d'/' -f2)
-          if [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
-            PAGE_URL="https://$OWNER.github.io/$REPO-develop"
-          else
-            PAGE_URL="https://$OWNER.github.io/$REPO"
-          fi
-          echo "PAGE_URL=$PAGE_URL" >> $GITHUB_ENV
   deploy:
     needs: build
     
@@ -51,6 +40,17 @@ jobs:
       
     runs-on: ubuntu-latest
     steps:
+      - name: Determine Page URL
+        id: deployment-url
+        run: |
+          OWNER=$(echo ${{ github.repository }} | cut -d'/' -f1)
+          REPO=$(echo ${{ github.repository }} | cut -d'/' -f2)
+          if [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+            PAGE_URL="https://$OWNER.github.io/$REPO-develop"
+          else
+            PAGE_URL="https://$OWNER.github.io/$REPO"
+          fi
+          echo "PAGE_URL=$PAGE_URL" >> $GITHUB_ENV
       - name: Deploy to Github Pages 🚀
         id: deployment
         uses: actions/deploy-pages@v4
