@@ -26,18 +26,7 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./dist/apps/wallet-react
-  deploy:
-    needs: build
-    
-    permissions:
-      pages: write
-      id-token: write
-      
-    environment:
-      name: github-pages
-      
-    runs-on: ubuntu-latest
-    steps:
+       
       - name: Determine Page URL
         id: deployment-url
         run: |
@@ -48,8 +37,19 @@ jobs:
           else
             echo "::set-output name=page_url::https://$OWNER.github.io/$REPO-develop"
           fi
+  deploy:
+    needs: build
+    
+    permissions:
+      pages: write
+      id-token: write
+      
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment-url.outputs.page_url }}
+      
+    runs-on: ubuntu-latest
+    steps:
       - name: Deploy to Github Pages 🚀
         id: deployment
         uses: actions/deploy-pages@v4
-        with:
-          page_url: ${{ steps.deployment-url.outputs.page_url }}
