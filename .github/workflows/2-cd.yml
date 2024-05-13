@@ -22,7 +22,7 @@ jobs:
           OWNER=$(echo ${{ github.repository }} | cut -d'/' -f1)
           REPO=$(echo ${{ github.repository }} | cut -d'/' -f2)
           if [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
-            BASE_HREF="/$REPO/develop"
+            BASE_HREF="/$REPO-dev"
           else
             BASE_HREF="/$REPO"
           fi
@@ -65,7 +65,7 @@ jobs:
     environment:
       # environment created automatically by GitHub
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ env.PAGE_URL }}
 
     runs-on: ubuntu-latest
     steps:
