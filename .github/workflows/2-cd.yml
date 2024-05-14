@@ -22,8 +22,8 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git checkout -b deploy
-          git add -A .
-          git commit -m "Deploy to eudiw-web"
+          git add .
+          git diff-index --quiet HEAD || git commit -m "Deploy to eudiw-web"
           git push origin deploy
 
 
