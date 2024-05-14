@@ -4,10 +4,10 @@ on:
     branches: 
       - develop
 
-# permissions:
-#   pages: write
-#   id-token: write
-#   contents: read
+permissions:
+  pages: write
+  id-token: write
+  contents: read
 
 jobs:
   build-and-deploy:
