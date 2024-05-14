@@ -26,7 +26,7 @@ jobs:
           else
             BASE_HREF="/$REPO"
           fi
-          echo "base_href::$BASE_HREF" >> $GITHUB_OUTPUT
+          echo "base_href=$BASE_HREF" >> $GITHUB_OUTPUT
   
   rebuild:
     needs: setup
