@@ -3,11 +3,12 @@ name: Compile and Deploy
 on:
   push:
     branches:
-      - develop  # Replace 'main' with your main branch name or any other branch name you want to trigger this workflow
-
-jobs:
-  build_and_deploy:
+      - develop 
+jobs: 
+ build_and_deploy:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -35,6 +36,8 @@ jobs:
       - name: Deploy to eudiw-web repository
         run: |
           mv dist/apps/* ./
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Actions"
           git add .
           git commit -m "Deploy compiled code to eudiw-web"
           git push --force origin deploy
