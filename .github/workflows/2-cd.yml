@@ -23,6 +23,7 @@ jobs:
             git checkout -b deploy
             git push -u origin deploy
           else
+            git fetch origin deploy:deploy
             git checkout deploy
           fi
 
