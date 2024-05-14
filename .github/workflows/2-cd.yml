@@ -19,7 +19,7 @@ jobs:
       - name: Install and Build 🔧
         run: |
           npm ci
-          npx nx run wallet-react:build --baseHref=/eudiw-app/
+          npx nx run wallet-react:build --baseHref=/eudiw-app-dev/
 
       - name: Setup Pages 📄🔧
         id: pages
