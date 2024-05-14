@@ -35,6 +35,12 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
+      - name: Set deployment directory
+        id: set-deploy-dir
+        run: echo "deploy_dir=${{ github.ref_slug }}" >> $GITHUB_ENV
       - name: Deploy to Github Pages 🚀
         id: deployment
         uses: actions/deploy-pages@v4
+        with:
+            branch: ${{ env.deploy_dir }}
+            folder: dist/apps/wallet-react
