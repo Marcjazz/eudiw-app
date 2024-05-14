@@ -1,43 +1,34 @@
-name: Build and Deploy
+name: Compile and Deploy
+
 on:
   push:
-    branches: 
-      - develop
-
-# permissions:
-#   pages: write
-#   id-token: write
-#   contents: write
+    branches:
+      - main  # Replace 'main' with your main branch name or any other branch name you want to trigger this workflow
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout source code
-        uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: Install dependencies
-        run: npm ci
+    - name: Install dependencies
+      run: |
+        npm install  # Replace this with your dependency installation command
 
-      - name: Install and Build 🔧
-        run: npx nx run wallet-react:build --baseHref=/eudiw-app/
+    - name: Build
+      run: |
+        npm run build  # Replace this with your build command
 
-      - name: Checkout deploy branch
-        uses: actions/checkout@v4
-        with:
-          ref: deploy-branch
-          clean: false
-          # token: ${{ secrets.YOUR_GITHUB_TOKEN }}
-
-      - name: Move build output to deploy branch
-        run: |
-          mv dist/* .
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          git add .
-          git commit -m "Deploy compiled code"
-          git push origin deploy-branch
+    - name: Commit build artifacts
+      run: |
+        git config --local user.email "actions@github.com"
+        git config --local user.name "GitHub Actions"
+        git checkout -b deploy-branch
+        git add .
+        git commit -m "Deploy build artifacts"
+        git push origin deploy-branch
 
 # jobs:
 #   build:
