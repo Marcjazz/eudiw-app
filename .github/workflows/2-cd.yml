@@ -1,32 +1,46 @@
 name: Build and Deploy
 on:
   push:
-    branches: [develop]
+    branches: 
+      - develop
+
 permissions:
   pages: write
   id-token: write
-  contents: write
+  contents: read
+
 jobs:
-  build_and_deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
+      - name: Checkout source code
         uses: actions/checkout@v4
 
-      - name: Install dependencies and build
-        run: |
-          npm ci
-          npx nx build wallet-react --baseHref=/eudiw-web/
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '14'
 
-      - name: Deploy to eudiw-web repository
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Checkout deploy branch
+        uses: actions/checkout@v4
+        with:
+          ref: deploy-branch
+          clean: false
+
+      - name: Move build output to deploy branch
         run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          git checkout -b deploy
+          mv dist/* .
           git add .
-          git commit -m "Deploy to eudiw-web"
-          git remote add eudiw-web https://github.com/Marcjazz/eudiw-web.git
-          git push -f eudiw-web deploy
+          git commit -m "Deploy compiled code"
+          git push origin deploy-branch
+
 
 # jobs:
 #   build:
