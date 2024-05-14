@@ -21,10 +21,12 @@ jobs:
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-          git checkout -b deploy
+          git checkout deploy
+          rm -rf ./*
+          mv ../wallet-react/dist/* ./
           git add .
-          git diff-index --quiet HEAD || git commit -m "Deploy to eudiw-web"
-          git push origin deploy
+          git commit -m "Deploy compiled code to eudiw-web"
+          git push --force origin deploy
 
 
 # jobs:
