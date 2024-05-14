@@ -75,7 +75,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
-          path: ./dist/apps
+          path: ./dist/apps/wallet-react-dev
 
   deploy:
     needs: rebuild
