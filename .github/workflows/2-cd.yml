@@ -70,12 +70,9 @@ jobs:
         run: npx nx build wallet-react --baseHref=/eudiw-app/
 
       - name: Configure project to enable subpath deployment
-        if: github.ref == 'refs/heads/develop'
         run: |
           cd apps/wallet-react/src/assets
           cp manifest.prod.json manifest.json
-          cd ../../../../
-          mv dist/apps/wallet-react dist/apps/wallet-react-dev
 
   deploy:
     needs: rebuild
