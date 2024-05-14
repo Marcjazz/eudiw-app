@@ -17,17 +17,22 @@ jobs:
           npm ci
           npx nx build wallet-react --baseHref=/eudiw-web/
 
+      - name: Check if deploy branch exists
+        run: |
+          if ! git show-ref --quiet refs/heads/deploy; then
+            git checkout -b deploy
+            git push -u origin deploy
+          else
+            git checkout deploy
+          fi
+
       - name: Deploy to eudiw-web repository
         run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          git checkout -b deploy
           rm -rf ./*
-          mv ../wallet-react/dist/* ./
+          mv dist/apps/* ./
           git add .
           git commit -m "Deploy compiled code to eudiw-web"
           git push --force origin deploy
-
 
 # jobs:
 #   build:
