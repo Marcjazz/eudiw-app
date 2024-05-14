@@ -11,13 +11,17 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          path: eudiw-app  # Set the path to your repository
 
       - name: Install dependencies and build
+        working-directory: ./eudiw-app  # Change directory to your repository
         run: |
           npm ci
           npx nx build wallet-react --baseHref=/eudiw-web/
 
       - name: Check if deploy branch exists
+        working-directory: ./eudiw-app  # Change directory to your repository
         run: |
           if ! git show-ref --quiet refs/heads/deploy; then
             git checkout -b deploy
@@ -29,7 +33,8 @@ jobs:
 
       - name: Remove all files except dist
         run: |
-          ls -A | grep -v dist | xargs rm -rf
+          shopt -s extglob
+          rm -rf !(.git|dist)
 
       - name: Deploy to eudiw-web repository
         run: |
@@ -37,6 +42,7 @@ jobs:
           git add .
           git commit -m "Deploy compiled code to eudiw-web"
           git push --force origin deploy
+
 
 
 # jobs:
