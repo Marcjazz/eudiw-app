@@ -7,40 +7,62 @@ permissions:
   id-token: write
   contents: write
 jobs:
-  build:
-    # Recommended if you intend to make multiple deployments in quick succession.
-    concurrency: ci-${{ github.ref }}
+  build_and_deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout 🛎️
+      - name: Checkout code
         uses: actions/checkout@v4
-        # This example project is built using npm and outputs the result to the 'build' folder.
-        # Replace with the commands required to build your project, or remove this step entirely if your site is pre-built.
-      - name: Install and Build 🔧
+
+      - name: Install dependencies and build
         run: |
           npm ci
-          npx nx run wallet-react:build --baseHref=/eudiw-app-dev/
+          npx nx build wallet-react --baseHref=/eudiw-web/
 
-      - name: Setup Pages 📄🔧
-        id: pages
-        uses: actions/configure-pages@v4
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./dist/apps/wallet-react
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Set deployment directory
-        id: set-deploy-dir
-        run: echo "deploy_dir=${{ github.ref_slug }}" >> $GITHUB_ENV
-      - name: Deploy to Github Pages 🚀
-        id: deployment
-        uses: actions/deploy-pages@v4
-        with:
-            branch: ${{ env.deploy_dir }}
-            folder: dist/apps/wallet-react
+      - name: Deploy to eudiw-web repository
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git checkout -b deploy
+          git add .
+          git commit -m "Deploy to eudiw-web"
+          git remote add eudiw-web https://github.com/Marcjazz/eudiw-web.git
+          git push -f eudiw-web deploy
+
+# jobs:
+#   build:
+#     # Recommended if you intend to make multiple deployments in quick succession.
+#     concurrency: ci-${{ github.ref }}
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout 🛎️
+#         uses: actions/checkout@v4
+#         # This example project is built using npm and outputs the result to the 'build' folder.
+#         # Replace with the commands required to build your project, or remove this step entirely if your site is pre-built.
+#       - name: Install and Build 🔧
+#         run: |
+#           npm ci
+#           npx nx run wallet-react:build --baseHref=/eudiw-app-dev/
+
+#       - name: Setup Pages 📄🔧
+#         id: pages
+#         uses: actions/configure-pages@v4
+#       - name: Upload artifact
+#         uses: actions/upload-pages-artifact@v3
+#         with:
+#           path: ./dist/apps/wallet-react
+#   deploy:
+#     environment:
+#       name: github-pages
+#       url: ${{ steps.deployment.outputs.page_url }}
+#     runs-on: ubuntu-latest
+#     needs: build
+#     steps:
+#       - name: Set deployment directory
+#         id: set-deploy-dir
+#         run: echo "deploy_dir=${{ github.ref_slug }}" >> $GITHUB_ENV
+#       - name: Deploy to Github Pages 🚀
+#         id: deployment
+#         uses: actions/deploy-pages@v4
+#         with:
+#             branch: ${{ env.deploy_dir }}
+#             folder: dist/apps/wallet-react
