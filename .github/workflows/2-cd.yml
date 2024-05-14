@@ -3,7 +3,7 @@ name: Compile and Deploy
 on:
   push:
     branches:
-      - main  # Replace 'main' with your main branch name or any other branch name you want to trigger this workflow
+      - develop  # Replace 'main' with your main branch name or any other branch name you want to trigger this workflow
 
 jobs:
   build:
