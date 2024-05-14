@@ -15,13 +15,11 @@ jobs:
           path: eudiw-app  # Set the path to your repository
 
       - name: Install dependencies and build
-        working-directory: ./eudiw-app  # Change directory to your repository
         run: |
           npm ci
           npx nx build wallet-react --baseHref=/eudiw-web/
 
       - name: Check if deploy branch exists
-        working-directory: ./eudiw-app  # Change directory to your repository
         run: |
           if ! git show-ref --quiet refs/heads/deploy; then
             git checkout -b deploy
