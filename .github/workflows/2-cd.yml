@@ -40,7 +40,7 @@ jobs:
             git checkout -b deploy
             git push -u origin deploy
           else
-            git fetch origin deploy:deploy
+            git fetch
             git checkout deploy
             git pull origin deploy
           fi
