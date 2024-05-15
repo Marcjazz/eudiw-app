@@ -27,17 +27,17 @@ jobs:
           name: new-eudiw-artifact
           path: compiled_code/
   
-  merge_artifact:
-    runs-on: ubuntu-lastest
-    needs: build_and_upload
+  # merge_artifact:
+  #   runs-on: ubuntu-lastest
+  #   needs: build_and_upload
 
-    steps:
-      - name: Download new compiled code
-        id: upload_code
-        uses: actions/download-artifact@v2
-        with:
-          name: new-eudiw-artifact
-          path: compiled_code
+  #   steps:
+  #     - name: Download new compiled code
+  #       id: upload_code
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: new-eudiw-artifact
+  #         path: compiled_code
 
       - name: Download existing compiled code
         if: failure()
