@@ -42,6 +42,7 @@ jobs:
           else
             git fetch origin deploy:deploy
             git checkout deploy
+            git pull origin deploy
           fi
 
       - name: Commit changes
