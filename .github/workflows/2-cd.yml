@@ -33,8 +33,13 @@ jobs:
 
     steps:
       - name: Download existing compiled code
+        uses: actions/download-artifact@v2
+        with:
+          name: new-eudiw-artifact
+          path: compiled_code
+          
+      - name: Download existing compiled code
         id: download_existing
-        if: ${{ always() }}
         uses: actions/download-artifact@v2
         with:
           name: eudiw-artifact
@@ -47,6 +52,7 @@ jobs:
           rm -rf existing_compiled_code
 
       - name: Re-upload merged compiled code
+        if: ${{ always() }}
         uses: actions/upload-artifact@v2
         with:
           name: eudiw-artifact
