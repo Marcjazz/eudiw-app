@@ -6,6 +6,10 @@ on:
       - main
       - develop
 
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
 jobs:
   build_and_push:
     runs-on: ubuntu-latest
