@@ -1,56 +1,68 @@
-name: CD
+name: Build and Deploy
 
 on:
   push:
     branches:
-     - main
-     - develop
+      - main
+      - develop
 
 concurrency:
   group: pages
   cancel-in-progress: true
 
 jobs:
-  rebuild:
+  build_and_push:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: latest
-          cache: npm
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Configure project to enable subpath deployment
+      - name: Install dependencies and build
         run: |
-          cd apps/wallet-react/src/assets
-          cp manifest.prod.json manifest.json
+          npm ci
+          npx nx build wallet-react --baseHref=/eudiw-app/
+          mkdir -p docs
+          if [ "${{ github.ref }}" = "refs/heads/develop" ]; then
+            mv dist/apps/wallet-react docs/wallet-react-dev
+          else
+            mv dist/apps/wallet-react docs/wallet-react
+          fi
 
-      - name: Build
-        run: npx nx build wallet-react --baseHref=/eudiw-app/
+      - name: Configure git
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
 
-      - name: Upload artifacts
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./dist/apps/wallet-react
+      - name: Check if deploy branch exists
+        run: |
+          if ! git show-ref --quiet refs/heads/deploy; then
+            git checkout -b deploy
+            git push -u origin deploy
+          else
+            git fetch origin deploy:deploy
+            git checkout deploy
+          fi
 
-  deploy:
-    needs: rebuild
+      - name: Commit changes
+        run: |
+          git add .
+          git commit -m "Deploy wallet-react app"
 
-    permissions:
-      pages: write
-      id-token: write
-
-    environment:
-      # environment created automatically by GitHub
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
+      - name: Push changes
+        run: git push origin deploy
+        
+  upload_build:
     runs-on: ubuntu-latest
+    needs: build_and_push
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          ref: deploy
+
+      - name: Upload docs folder
+        uses: actions/upload-artifact@v2
+        with:
+          name: wallet-react-deploy
+          path: docs/
