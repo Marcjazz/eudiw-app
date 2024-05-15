@@ -20,12 +20,21 @@ jobs:
         run: |
           npm ci
           npx nx build wallet-react --baseHref=/eudiw-app/
-          mkdir -p docs
           if [ ${{ github.ref }} = "refs/heads/develop" ]; then
             mv dist/apps/wallet-react docs/wallet-react-dev
           else
-            mv dist/apps/wallet-react docs/wallet-react
+            mv dist/apps/wallet-react docs/
           fi
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.ref }}
 
       - name: Configure git
         run: |
@@ -42,10 +51,14 @@ jobs:
             git checkout deploy
           fi
 
+      - name: Copy build to deploy folder
+        run: |
+          cp -r docs/. .
+
       - name: Commit changes
         run: |
           git add .
-          git commit -m "Deploy wallet-react app from ${{ github.ref }}"
+          git commit -m "Deploy wallet-react app"
 
       - name: Push changes
         run: git push origin deploy
