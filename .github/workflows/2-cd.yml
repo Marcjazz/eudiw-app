@@ -47,6 +47,7 @@ jobs:
           rm -rf existing_compiled_code
 
       - name: Re-upload merged compiled code
+        if: ${{ always() }}
         uses: actions/upload-artifact@v2
         with:
           name: eudiw-artifact
