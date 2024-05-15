@@ -13,13 +13,18 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      
+      - name: Get branch name
+        id: branch_name
+        run: |
+          echo "branch_name=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_ENV
 
       - name: Install dependencies and build for main
         run: |
           npm ci
           npx nx build wallet-react --baseHref=/eudiw-app/
-          mkdir -p compiled_code/$GITHUB_REF
-          mv dist/apps/wallet-react compiled_code/$GITHUB_REF
+          mkdir -p compiled_code/${branch_name}
+          mv dist/apps/wallet-react/. compiled_code/${branch_name}
 
       - name: Upload compiled code
         uses: actions/upload-artifact@v2
