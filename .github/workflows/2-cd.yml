@@ -1,46 +1,4 @@
-name: Compile and Deploy
-
-# on:
-#   push:
-#     branches:
-#       - develop 
-# jobs: 
-#  build_and_deploy:
-#     runs-on: ubuntu-latest
-#     env:
-#       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#     steps:
-#       - name: Checkout code
-#         uses: actions/checkout@v4
-
-#       - name: Install dependencies and build
-#         run: |
-#           npm ci
-#           npx nx build wallet-react --baseHref=/eudiw-web/
-
-#       - name: Check if deploy branch exists
-#         run: |
-#           if ! git show-ref --quiet refs/heads/deploy; then
-#             git checkout -b deploy
-#             git push -u origin deploy
-#           else
-#             git fetch origin deploy:deploy
-#             git checkout deploy
-#           fi
-
-#       - name: Remove all files except dist
-#         run: |
-#           shopt -s extglob
-#           rm -rf !(.git|dist)
-
-#       - name: Deploy to eudiw-web repository
-#         run: |
-#           mv dist/apps/* ./
-#           git config --local user.email "actions@github.com"
-#           git config --local user.name "GitHub Actions"
-#           git add .
-#           git commit -m "Deploy compiled code to eudiw-web"
-#           git push --force origin deploy
+name: Build and Deploy
 
 on:
   push:
@@ -48,47 +6,56 @@ on:
       - main
       - develop
 
-concurrency:
-  group: pages
-  cancel-in-progress: true
-
 jobs:
-  rebuild:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - name: Checkout code
+        uses: actions/checkout@v2
         with:
-          node-version: latest
-          cache: npm
+          ref: ${{ github.ref }}
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build
-        run: npx nx build wallet-react --baseHref=/eudiw-app/
-
-      - name: Configure project to enable subpath deployment
+      - name: Install dependencies and build
         run: |
-          cd apps/wallet-react/src/assets
-          cp manifest.prod.json manifest.json
+          npm ci
+          npx nx build wallet-react --baseHref=/eudiw-app/
+          mkdir -p docs
+          if [ ${{ github.ref }} = "refs/heads/develop" ]; then
+            mv dist/apps/wallet-react docs/wallet-react-dev
+          else
+            mv dist/apps/wallet-react docs/wallet-react
+          fi
 
   deploy:
-    needs: rebuild
-
-    permissions:
-      pages: write
-      id-token: write
-
-    environment:
-      # environment created automatically by GitHub
-      name: github-pages
-
+    needs: build
     runs-on: ubuntu-latest
+    
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Checkout code
+        uses: actions/checkout@v2
         with:
-          subdir: ${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
+          ref: ${{ github.ref }}
+
+      - name: Configure git
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+
+      - name: Check if deploy branch exists
+        run: |
+          if ! git show-ref --quiet refs/heads/deploy; then
+            git checkout -b deploy
+            git push -u origin deploy
+          else
+            git fetch origin deploy:deploy
+            git checkout deploy
+          fi
+
+      - name: Commit changes
+        run: |
+          git add .
+          git commit -m "Deploy wallet-react app from ${{ github.ref }}"
+
+      - name: Push changes
+        run: git push origin deploy
