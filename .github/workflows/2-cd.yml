@@ -34,13 +34,14 @@ jobs:
     steps:
       - name: Download existing compiled code
         id: download_existing
+        if: success() || failure()
         uses: actions/download-artifact@v2
         with:
           name: eudiw-artifact
           path: existing_compiled_code
 
       - name: Merge existing and new compiled code
-        if: always() && success() && steps.download_existing.outputs.artifact_size != '0 B'
+        if: steps.download_existing.outputs.artifact_size != '0 B'
         run: |
           cp -r existing_compiled_code/. compiled_code/
           rm -rf existing_compiled_code
@@ -50,3 +51,4 @@ jobs:
         with:
           name: eudiw-artifact
           path: compiled_code/
+
