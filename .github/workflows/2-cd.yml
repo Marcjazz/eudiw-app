@@ -38,7 +38,7 @@ jobs:
 
     steps:
       - name: Download existing artifact
-        id: download-artifact
+        id: download_existing
         uses: dawidd6/action-download-artifact@v3
         with:
           name: eudiw-artifact
