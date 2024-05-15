@@ -7,34 +7,23 @@ on:
       - develop
 
 jobs:
-  build:
+  build_and_deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-        with:
-          ref: ${{ github.ref }}
 
       - name: Install dependencies and build
         run: |
           npm ci
           npx nx build wallet-react --baseHref=/eudiw-app/
-          if [ ${{ github.ref }} = "refs/heads/develop" ]; then
+          mkdir -p docs
+          if [ "${{ github.ref }}" = "refs/heads/develop" ]; then
             mv dist/apps/wallet-react docs/wallet-react-dev
           else
             mv dist/apps/wallet-react docs/
           fi
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-        with:
-          ref: ${{ github.ref }}
 
       - name: Configure git
         run: |
