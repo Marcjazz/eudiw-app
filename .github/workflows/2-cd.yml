@@ -6,63 +6,84 @@ on:
       - main
       - develop
 
-concurrency:
-  group: pages
-  cancel-in-progress: true
-
 jobs:
-  build_and_push:
+  build_and_upload:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      
+      - name: Get branch name
+        id: branch_name
+        run: |
+          echo "branch_name=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_ENV
 
-      - name: Install dependencies and build
+      - name: Install dependencies and build for main
         run: |
           npm ci
           npx nx build wallet-react --baseHref=/eudiw-app/
-          mkdir -p docs
-          if [ "${{ github.ref }}" = "refs/heads/develop" ]; then
-            mv dist/apps/wallet-react docs/wallet-react-dev
-          else
-            mv dist/apps/wallet-react docs/wallet-react
-          fi
+          mkdir -p compiled_code/${branch_name}
+          mv dist/apps/wallet-react/* compiled_code/${branch_name}
 
-      - name: Configure git
-        run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-
-      - name: Check if deploy branch exists
-        run: |
-          if ! git show-ref --quiet refs/heads/deploy; then
-            git checkout -b deploy
-          else
-            git fetch
-            git checkout deploy
-            git pull origin deploy
-          fi
-
-      - name: Commit changes
-        run: |
-          git add .
-          git commit -m "Deploy wallet-react app"
-
-      - name: Push changes
-        run: git push origin deploy
-        
-  upload_build:
-    runs-on: ubuntu-latest
-    needs: build_and_push
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-        with:
-          ref: deploy
-
-      - name: Upload docs folder
+      - name: Upload compiled code
         uses: actions/upload-artifact@v2
         with:
-          name: wallet-react-deploy
-          path: docs/
+          name: new-eudiw-artifact
+          path: compiled_code/
+
+  merge_artifact:
+    needs: build_and_upload
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download existing artifact
+        id: download-artifact
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          name: eudiw-artifact
+          path: existing_compiled_code
+          # Optional, GitHub token, a Personal Access Token with `public_repo` scope if needed
+          # Required, if the artifact is from a different repo
+          # Required, if the repo is private a Personal Access Token with `repo` scope is needed or GitHub token in a job where the permissions `action` scope set to `read`
+          github_token: ${{secrets.GITHUB_TOKEN}}
+          # Optional, workflow file name or ID
+          # If not specified, will be inferred from run_id (if run_id is specified), or will be the current workflow
+          workflow: 2-cd.yml
+          # If no workflow is set and workflow_search set to true, then the most recent workflow matching
+          # all other criteria will be looked up instead of using the current workflow
+          workflow_search: true
+          # Optional, the status or conclusion of a completed workflow to search for
+          # Can be one of a workflow conclusion:
+          #   "failure", "success", "neutral", "cancelled", "skipped", "timed_out", "action_required"
+          # Or a workflow status:
+          #   "completed", "in_progress", "queued"
+          # Use the empty string ("") to ignore status or conclusion in the search
+          workflow_conclusion: completed
+  
+      - name: Download new compiled code
+        uses: actions/download-artifact@v2
+        with:
+          name: new-eudiw-artifact
+          path: compiled_code
+          
+      # - name: Download existing compiled code
+      #   id: download_existing
+      #   uses: actions/download-artifact@v2
+      #   with:
+      #     name: eudiw-artifact
+      #     path: existing_compiled_code
+
+      - name: Merge existing and new compiled code
+        if: steps.download_existing.outputs.artifact_size != '0 B'
+        run: |
+          cp -r existing_compiled_code/. compiled_code/
+          rm -rf existing_compiled_code
+
+      - name: Re-upload merged compiled code
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: eudiw-artifact
+          path: compiled_code/
+
