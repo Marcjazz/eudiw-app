@@ -7,36 +7,47 @@ on:
       - develop
 
 jobs:
-  build_and_deploy:
+  build_and_upload:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-        with: 
-          ref: main
 
       - name: Install dependencies and build for main
         run: |
           npm ci
           npx nx build wallet-react --baseHref=/eudiw-app/
-          mkdir -p compiled_code/prod
-          mv dist/apps/wallet-react compiled_code/prod
-
-      - name: Checkout code
-        uses: actions/checkout@v2
-        with: 
-          ref: develop
-          
-      - name: Install dependencies and build for develop
-        run: |
-          npm ci
-          npx nx build wallet-react --baseHref=/eudiw-app/
-          mkdir -p compiled_code/dev
-          mv dist/apps/wallet-react compiled_code/dev
+          mkdir -p compiled_code/$GITHUB_REF
+          mv dist/apps/wallet-react compiled_code/$GITHUB_REF
 
       - name: Upload compiled code
         uses: actions/upload-artifact@v2
         with:
-          name: compiled-code
+          name: eudiw-artifact
+          path: compiled_code/
+  
+  merge_artifact:
+    runs-on: ubuntu-lastest
+    needs: build_and_upload
+
+    steps:
+      - name: Download existing compiled code
+        if: failure()
+        uses: actions/download-artifact@v2
+        with:
+          name: eudiw-artifact
+          path: existing_compiled_code
+
+      - name: Merge existing and new compiled code
+        if: failure() && steps.upload_code.outputs.artifact_size != '0 B'
+        run: |
+          cp -r existing_compiled_code/. compiled_code/
+          rm -rf existing_compiled_code
+
+      - name: Re-upload merged compiled code
+        if: failure() && steps.upload_code.outputs.artifact_size != '0 B'
+        uses: actions/upload-artifact@v2
+        with:
+          name: eudiw-artifact
           path: compiled_code/
