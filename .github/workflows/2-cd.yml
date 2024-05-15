@@ -24,7 +24,7 @@ jobs:
           npm ci
           npx nx build wallet-react --baseHref=/eudiw-app/
           mkdir -p compiled_code/${branch_name}
-          mv dist/apps/wallet-react/. compiled_code/${branch_name}
+          mv dist/apps/wallet-react/* compiled_code/${branch_name}
 
       - name: Upload compiled code
         uses: actions/upload-artifact@v2
