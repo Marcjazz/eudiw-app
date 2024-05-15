@@ -6,63 +6,37 @@ on:
       - main
       - develop
 
-concurrency:
-  group: pages
-  cancel-in-progress: true
-
 jobs:
-  build_and_push:
+  build_and_deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        with: 
+          ref: main
 
-      - name: Install dependencies and build
+      - name: Install dependencies and build for main
         run: |
           npm ci
           npx nx build wallet-react --baseHref=/eudiw-app/
-          mkdir -p docs
-          if [ "${{ github.ref }}" = "refs/heads/develop" ]; then
-            mv dist/apps/wallet-react docs/wallet-react-dev
-          else
-            mv dist/apps/wallet-react docs/wallet-react
-          fi
+          mkdir -p compiled_code/prod
+          mv dist/apps/wallet-react compiled_code/prod
 
-      - name: Configure git
-        run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-
-      - name: Check if deploy branch exists
-        run: |
-          if ! git show-ref --quiet refs/heads/deploy; then
-            git checkout -b deploy
-            git push -u origin deploy
-          else
-            git fetch origin deploy:deploy
-            git checkout deploy
-          fi
-
-      - name: Commit changes
-        run: |
-          git add .
-          git commit -m "Deploy wallet-react app"
-
-      - name: Push changes
-        run: git push origin deploy
-        
-  upload_build:
-    runs-on: ubuntu-latest
-    needs: build_and_push
-    steps:
       - name: Checkout code
         uses: actions/checkout@v2
-        with:
-          ref: deploy
+        with: 
+          ref: develop
+          
+      - name: Install dependencies and build for develop
+        run: |
+          npm ci
+          npx nx build wallet-react --baseHref=/eudiw-app/
+          mkdir -p compiled_code/dev
+          mv dist/apps/wallet-react compiled_code/dev
 
-      - name: Upload docs folder
+      - name: Upload compiled code
         uses: actions/upload-artifact@v2
         with:
-          name: wallet-react-deploy
-          path: docs/
+          name: compiled-code
+          path: compiled_code/
