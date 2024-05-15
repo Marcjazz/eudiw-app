@@ -27,33 +27,32 @@ jobs:
           name: new-eudiw-artifact
           path: compiled_code/
   
-  # merge_artifact:
-  #   runs-on: ubuntu-lastest
-  #   needs: build_and_upload
+  merge_artifact:
+    runs-on: ubuntu-lastest
+    needs: build_and_upload
 
-  #   steps:
-  #     - name: Download new compiled code
-  #       id: upload_code
-  #       uses: actions/download-artifact@v2
-  #       with:
-  #         name: new-eudiw-artifact
-  #         path: compiled_code
+    steps:
+      - name: Download new compiled code
+        id: upload_code
+        uses: actions/download-artifact@v2
+        with:
+          name: new-eudiw-artifact
+          path: compiled_code
 
       - name: Download existing compiled code
-        if: failure()
         uses: actions/download-artifact@v2
         with:
           name: eudiw-artifact
           path: existing_compiled_code
 
       - name: Merge existing and new compiled code
-        if: failure() && steps.upload_code.outputs.artifact_size != '0 B'
+        if: success() && steps.upload_code.outputs.artifact_size != '0 B'
         run: |
           cp -r existing_compiled_code/. compiled_code/
           rm -rf existing_compiled_code
 
       - name: Re-upload merged compiled code
-        if: failure() && steps.upload_code.outputs.artifact_size != '0 B'
+        if: success() && steps.upload_code.outputs.artifact_size != '0 B'
         uses: actions/upload-artifact@v2
         with:
           name: eudiw-artifact
