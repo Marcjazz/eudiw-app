@@ -32,12 +32,12 @@ jobs:
           name: new-github-pages
           path: compiled_code/
 
-
+  
   generate_root_page:
     runs-on: ubuntu-latest
-
+  
     steps:
-      - name: Generate index.html
+      - name: Generate and save index.html content
         run: |
           echo "<!DOCTYPE html>
           <html>
@@ -48,10 +48,8 @@ jobs:
             </head>
             <body></body>
           </html>" > index.html
-
-      - name: Save index.html content to file
-        run: |
           echo "index_pg=$(cat index.html)" >> $GITHUB_OUT
+
         
   merge_artifact:
     needs: [build_and_upload, generate_root_page]
