@@ -32,6 +32,7 @@ jobs:
           name: new-github-pages
           path: compiled_code/
 
+
   generate_root_page:
     runs-on: ubuntu-latest
 
