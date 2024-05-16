@@ -31,33 +31,9 @@ jobs:
         with:
           name: new-github-pages
           path: compiled_code/
-
-  
-  generate_index_html:
-    runs-on: ubuntu-latest
-      
-    steps:
-      - name: Generate index.html
-        run: |
-          echo "<!DOCTYPE html>
-          <html>
-            <head>
-              <script>
-                window.location.href = '/main';
-              </script>
-            </head>
-            <body></body>
-          </html>" > index.html
-
-      - name: Save index.html content to file
-        run: |
-          echo "index_pg=$(cat index.html)" >> $GITHUB_ENV
-
-
-
-        
+          
   merge_artifact:
-    needs: [build_and_upload, generate_index_html]
+    needs: build_and_upload
     runs-on: ubuntu-latest
 
     steps:
@@ -104,9 +80,18 @@ jobs:
         run: |
           cp -r existing_compiled_code/. compiled_code/
           rm -rf existing_compiled_code
-      
-      - name: Add index.html to artifact root
-        run: echo "${{ needs.generate_index_html.outputs.content }}" > compiled_code/index.html
+
+      - name: Generate index.html
+        run: |
+          echo "<!DOCTYPE html>
+          <html>
+            <head>
+              <script>
+                window.location.href = '/main';
+              </script>
+            </head>
+            <body></body>
+          </html>" > compiled_code/index.html
         
       - name: Re-upload merged compiled code
         if: ${{ always() }}
