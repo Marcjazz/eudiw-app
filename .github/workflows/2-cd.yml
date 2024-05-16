@@ -37,8 +37,7 @@ jobs:
     runs-on: ubuntu-latest
       
     steps:
-      - name: Generate and Store index.html content
-        id: store_index
+      - name: Generate index.html
         run: |
           echo "<!DOCTYPE html>
           <html>
@@ -49,7 +48,10 @@ jobs:
             </head>
             <body></body>
           </html>" > index.html
-          echo "content=$(cat index.html)" >> $GITHUB_OUTPUT
+
+      - name: Save index.html content to file
+        run: |
+          echo "index_pg=$(cat index.html)" >> $GITHUB_ENV
 
 
 
