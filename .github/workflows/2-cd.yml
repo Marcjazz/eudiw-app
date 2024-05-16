@@ -33,11 +33,12 @@ jobs:
           path: compiled_code/
 
   
-  generate_root_page:
+  generate_index_html:
     runs-on: ubuntu-latest
-  
+      
     steps:
-      - name: Generate and save index.html content
+      - name: Generate and Store index.html content
+        id: store_index
         run: |
           echo "<!DOCTYPE html>
           <html>
@@ -48,11 +49,13 @@ jobs:
             </head>
             <body></body>
           </html>" > index.html
-          echo "index_pg=$(cat index.html)" >> $GITHUB_OUT
+          echo "content=$(cat index.html)" >> $GITHUB_OUTPUT
+
+
 
         
   merge_artifact:
-    needs: [build_and_upload, generate_root_page]
+    needs: [build_and_upload, generate_index_html]
     runs-on: ubuntu-latest
 
     steps:
@@ -101,7 +104,7 @@ jobs:
           rm -rf existing_compiled_code
       
       - name: Add index.html to artifact root
-        run: echo "${{ needs.generate_index_html.outputs.index_pg }}" > compiled_code/index.html
+        run: echo "${{ needs.generate_index_html.outputs.content }}" > compiled_code/index.html
         
       - name: Re-upload merged compiled code
         if: ${{ always() }}
