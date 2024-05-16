@@ -53,7 +53,7 @@ jobs:
           echo "index_pg=$(cat index.html)" >> $GITHUB_OUT
         
   merge_artifact:
-    needs: [build_and_upload, generate_index_html]
+    needs: [build_and_upload, generate_root_page]
     runs-on: ubuntu-latest
 
     steps:
