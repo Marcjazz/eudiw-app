@@ -25,11 +25,14 @@ jobs:
           npx nx build wallet-react --baseHref=/eudiw-app/
           mkdir -p compiled_code/${branch_name}
           mv dist/apps/wallet-react/* compiled_code/${branch_name}
-
+          
+      - name: Remove .gitkeep files
+        run: find ./dist/apps/wallet-react -name ".gitkeep" -type f -delete
+        
       - name: Upload compiled code
         uses: actions/upload-artifact@v4
         with:
-          name: new-github-pages
+          name: new-eudiw-artifact
           path: compiled_code/
           
   merge_artifact:
@@ -42,7 +45,7 @@ jobs:
         continue-on-error: true
         uses: dawidd6/action-download-artifact@v3
         with:
-          name: github-pages
+          name: eudiw-artifact
           path: existing_compiled_code
           # Optional, GitHub token, a Personal Access Token with `public_repo` scope if needed
           # Required, if the artifact is from a different repo
@@ -65,14 +68,14 @@ jobs:
       - name: Download new compiled code
         uses: actions/download-artifact@v4
         with:
-          name: new-github-pages
+          name: new-eudiw-artifact
           path: compiled_code
           
       # - name: Download existing compiled code
       #   id: download_existing
       #   uses: actions/download-artifact@v2
       #   with:
-      #     name: github-pages
+      #     name: eudiw-artifact
       #     path: existing_compiled_code
 
       - name: Merge existing and new compiled code
@@ -97,7 +100,7 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
-          name: github-pages
+          name: eudiw-artifact
           path: compiled_code/develop
 
   deploy:
@@ -109,7 +112,7 @@ jobs:
 
     environment:
       # environment created automatically by GitHub
-      name: github-pages
+      name: eudiw-artifact
       url: ${{ steps.deployment.outputs.page_url }}
 
     runs-on: ubuntu-latest
