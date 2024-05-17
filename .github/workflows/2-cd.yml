@@ -27,7 +27,7 @@ jobs:
           mv dist/apps/wallet-react/* compiled_code/${branch_name}
           
       - name: Remove .gitkeep files
-        run: find ./dist/apps/wallet-react -name ".gitkeep" -type f -delete
+        run: find ./dist/apps/wallet-react/assets/ -name ".gitkeep" -type f -delete
         
       - name: Upload compiled code
         uses: actions/upload-artifact@v4
