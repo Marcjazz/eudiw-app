@@ -98,7 +98,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: github-pages
-          path: compiled_code/
+          path: compiled_code/develop
 
   deploy:
     needs: merge_artifact
