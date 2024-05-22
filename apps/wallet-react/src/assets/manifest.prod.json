@@ -24,7 +24,7 @@
     }
   ],
   "id": "datev_wallet",
-  "start_url": "/eudiw-app/",
+  "start_url": "/eudiw-app/wallet-react/",
   "background_color": "#9bd547",
   "display_override": ["minimal-ui", "standalone"],
   "display": "fullscreen",
