@@ -28,7 +28,7 @@ jobs:
           cp manifest.prod.json manifest.json
 
       - name: Build
-        run: npx nx build wallet-react --baseHref=/eudiw-app/
+        run: npx nx build wallet-react --baseHref=/eudiw-app/wallet-react
 
       - name: Added sub directory
         run: |
