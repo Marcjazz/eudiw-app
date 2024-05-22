@@ -1,109 +1,42 @@
-name: Build and Deploy
+name: CD
 
 on:
   push:
-    branches:
-      - main
-      - develop
+    branches: [develop]
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
 
 jobs:
-  build_and_upload:
+  rebuild:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Get branch name
-        id: branch_name
-        run: |
-          echo "branch_name=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_ENV
-
-      - name: Install dependencies and build for main
-        run: |
-          npm ci
-          npx nx build wallet-react --baseHref=/eudiw-app/
-          # mkdir -p compiled_code/${branch_name}
-          # find dist/apps/wallet-react/ -name ".gitkeep" -type f -delete
-          # mv dist/apps/wallet-react/* compiled_code/${branch_name}
-          
-      - name: Upload compiled code
-        uses: actions/upload-artifact@v4
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
-          name: github-pages
-          path: dist/apps/wallet-react/
-          
-  # merge_artifact:
-  #   needs: build_and_upload
-  #   runs-on: ubuntu-latest
+          node-version: latest
+          cache: npm
 
-  #   steps:
-  #     - name: Download new compiled code
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: github-pages
-  #         path: compiled_code
-          
-      # - name: Download existing artifact
-      #   id: download_existing
-      #   continue-on-error: true
-      #   uses: dawidd6/action-download-artifact@v3
-      #   with:
-      #     name: github-pages
-      #     path: existing_compiled_code
-      #     # Optional, GitHub token, a Personal Access Token with `public_repo` scope if needed
-      #     # Required, if the artifact is from a different repo
-      #     # Required, if the repo is private a Personal Access Token with `repo` scope is needed or GitHub token in a job where the permissions `action` scope set to `read`
-      #     github_token: ${{secrets.GITHUB_TOKEN}}
-      #     # Optional, workflow file name or ID
-      #     # If not specified, will be inferred from run_id (if run_id is specified), or will be the current workflow
-      #     workflow: 2-cd.yml
-      #     # If no workflow is set and workflow_search set to true, then the most recent workflow matching
-      #     # all other criteria will be looked up instead of using the current workflow
-      #     workflow_search: true
-      #     # Optional, the status or conclusion of a completed workflow to search for
-      #     # Can be one of a workflow conclusion:
-      #     #   "failure", "success", "neutral", "cancelled", "skipped", "timed_out", "action_required"
-      #     # Or a workflow status:
-      #     #   "completed", "in_progress", "queued"
-      #     # Use the empty string ("") to ignore status or conclusion in the search
-      #     workflow_conclusion: completed
-          
-      # - name: Download existing compiled code
-      #   id: download_existing
-      #   uses: actions/download-artifact@v2
-      #   with:
-      #     name: github-pages
-      #     path: existing_compiled_code
+      - name: Install dependencies
+        run: npm ci
 
-      # - name: Merge existing and new compiled code
-      #   if: success() && steps.download_existing.outcome == 'success'
-      #   run: |
-      #     cp -r existing_compiled_code/. compiled_code/
-      #     rm -rf existing_compiled_code
+      - name: Configure project to enable subpath deployment
+        run: |
+          cd apps/wallet-react/src/assets
+          cp manifest.prod.json manifest.json
 
-      # - name: Generate index.html
-      #   run: |
-      #     echo "<!DOCTYPE html>
-      #     <html>
-      #       <head>
-      #         <script>
-      #           window.location.href = '/develop';
-      #         </script>
-      #       </head>
-      #       <body></body>
-      #     </html>" > compiled_code/index.html
-        
-      # - name: Re-upload merged compiled code
-      #   if: always()
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: github-pages
-      #     path: compiled_code/
+      - name: Build
+        run: npx nx build wallet-react --baseHref=/eudiw-app/
+
+      - name: Upload artifacts
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist/apps/wallet-react
 
   deploy:
-    # needs: merge_artifact
-    needs: build_and_upload
+    needs: rebuild
 
     permissions:
       pages: write
