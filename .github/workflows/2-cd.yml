@@ -30,10 +30,16 @@ jobs:
       - name: Build
         run: npx nx build wallet-react --baseHref=/eudiw-app/
 
+      - name: Added sub directory
+        run: |
+          mkdir -p compiled_code/${branch_name}
+          find dist/apps/wallet-react/ -name ".gitkeep" -type f -delete
+          mv dist/apps/wallet-react compiled_code/
+
       - name: Upload artifacts
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist/apps/wallet-react
+          path: ./compile_code/wallet-react
 
   deploy:
     needs: rebuild
