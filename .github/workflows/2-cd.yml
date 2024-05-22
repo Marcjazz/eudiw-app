@@ -39,7 +39,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./compiled_code/wallet-react
+          path: ./compiled_code
 
   deploy:
     needs: rebuild
