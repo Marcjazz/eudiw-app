@@ -40,7 +40,19 @@ jobs:
           mkdir -p compiled_code/wallet-react-${branch_name}
           find dist/apps/wallet-react/ -name ".gitkeep" -type f -delete
           mv dist/apps/wallet-react/* compiled_code/wallet-react-${branch_name}
-
+      
+      - name: Generate index.html
+        run: |
+          echo "<!DOCTYPE html>
+          <html>
+            <head>
+              <script>
+                window.location.href = '/wallet-react-${branch_name}';
+              </script>
+            </head>
+            <body></body>
+          </html>" > compiled_code/index.html
+          
       # - name: Download existing artifact
       #   id: download_existing
       #   continue-on-error: true
