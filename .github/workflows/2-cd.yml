@@ -39,7 +39,7 @@ jobs:
         run: |
           mkdir -p compiled_code/
           find dist/apps/wallet-react/ -name ".gitkeep" -type f -delete
-          mv dist/apps/wallet-react/* compiled_code/wallet-react-${branch_name}
+          mv dist/apps/wallet-react/* compiled_code/wallet-react-${branch_name}/
 
       # - name: Download existing artifact
       #   id: download_existing
