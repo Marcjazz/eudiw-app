@@ -102,8 +102,8 @@ jobs:
       #     path: compiled_code/
 
   deploy:
-    # needs: merge_artifact
-    needs: build_and_upload
+    needs: merge_artifact
+    # needs: build_and_upload
 
     permissions:
       pages: write
