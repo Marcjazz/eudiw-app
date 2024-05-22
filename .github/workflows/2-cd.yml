@@ -30,47 +30,47 @@ jobs:
       - name: Build
         run: npx nx build wallet-react --baseHref=/eudiw-app/
 
-      - name: Added sub directory
-        run: |
-          mkdir -p compiled_code/
-          find dist/apps/wallet-react/ -name ".gitkeep" -type f -delete
-          mv dist/apps/wallet-react compiled_code/
+      # - name: Added sub directory
+      #   run: |
+      #     mkdir -p compiled_code/
+      #     find dist/apps/wallet-react/ -name ".gitkeep" -type f -delete
+      #     mv dist/apps/wallet-react/ compiled_code/
 
-      - name: Download existing artifact
-        id: download_existing
-        continue-on-error: true
-        uses: dawidd6/action-download-artifact@v3
-        with:
-          name: github-pages
-          path: existing_compiled_code
-          # Optional, GitHub token, a Personal Access Token with `public_repo` scope if needed
-          # Required, if the artifact is from a different repo
-          # Required, if the repo is private a Personal Access Token with `repo` scope is needed or GitHub token in a job where the permissions `action` scope set to `read`
-          github_token: ${{secrets.GITHUB_TOKEN}}
-          # Optional, workflow file name or ID
-          # If not specified, will be inferred from run_id (if run_id is specified), or will be the current workflow
-          workflow: 2-cd.yml
-          # If no workflow is set and workflow_search set to true, then the most recent workflow matching
-          # all other criteria will be looked up instead of using the current workflow
-          workflow_search: true
-          # Optional, the status or conclusion of a completed workflow to search for
-          # Can be one of a workflow conclusion:
-          #   "failure", "success", "neutral", "cancelled", "skipped", "timed_out", "action_required"
-          # Or a workflow status:
-          #   "completed", "in_progress", "queued"
-          # Use the empty string ("") to ignore status or conclusion in the search
-          workflow_conclusion: completed
+      # - name: Download existing artifact
+      #   id: download_existing
+      #   continue-on-error: true
+      #   uses: dawidd6/action-download-artifact@v3
+      #   with:
+      #     name: github-pages
+      #     path: existing_compiled_code
+      #     # Optional, GitHub token, a Personal Access Token with `public_repo` scope if needed
+      #     # Required, if the artifact is from a different repo
+      #     # Required, if the repo is private a Personal Access Token with `repo` scope is needed or GitHub token in a job where the permissions `action` scope set to `read`
+      #     github_token: ${{secrets.GITHUB_TOKEN}}
+      #     # Optional, workflow file name or ID
+      #     # If not specified, will be inferred from run_id (if run_id is specified), or will be the current workflow
+      #     workflow: 2-cd.yml
+      #     # If no workflow is set and workflow_search set to true, then the most recent workflow matching
+      #     # all other criteria will be looked up instead of using the current workflow
+      #     workflow_search: true
+      #     # Optional, the status or conclusion of a completed workflow to search for
+      #     # Can be one of a workflow conclusion:
+      #     #   "failure", "success", "neutral", "cancelled", "skipped", "timed_out", "action_required"
+      #     # Or a workflow status:
+      #     #   "completed", "in_progress", "queued"
+      #     # Use the empty string ("") to ignore status or conclusion in the search
+      #     workflow_conclusion: completed
       
-      - name: Merge existing and new compiled code
-        if: success() && steps.download_existing.outcome == 'success'
-        run: |
-          cp -r existing_compiled_code/. compiled_code/
-          rm -rf existing_compiled_code
+      # - name: Merge existing and new compiled code
+      #   if: success() && steps.download_existing.outcome == 'success'
+      #   run: |
+      #     cp -r existing_compiled_code/. compiled_code/
+      #     rm -rf existing_compiled_code
       
       - name: Upload artifacts
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./compiled_code
+          path: ./dist/apps/wallet-react/
 
   deploy:
     needs: rebuild
