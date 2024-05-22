@@ -23,9 +23,9 @@ jobs:
         run: |
           npm ci
           npx nx build wallet-react --baseHref=/eudiw-app/
-          mkdir -p compiled_code/branch_name
+          mkdir -p compiled_code/${branch_name}
           find dist/apps/wallet-react/ -name ".gitkeep" -type f -delete
-          mv dist/apps/wallet-react/* compiled_code/branch_name
+          mv dist/apps/wallet-react/* compiled_code/${branch_name}
           
       - name: Upload compiled code
         uses: actions/upload-artifact@v4
