@@ -23,26 +23,26 @@ jobs:
         run: |
           npm ci
           npx nx build wallet-react --baseHref=/eudiw-app/
-          mkdir -p compiled_code/${branch_name}
-          find dist/apps/wallet-react/ -name ".gitkeep" -type f -delete
-          mv dist/apps/wallet-react/* compiled_code/${branch_name}
+          # mkdir -p compiled_code/${branch_name}
+          # find dist/apps/wallet-react/ -name ".gitkeep" -type f -delete
+          # mv dist/apps/wallet-react/* compiled_code/${branch_name}
           
       - name: Upload compiled code
         uses: actions/upload-artifact@v4
         with:
           name: github-pages
-          path: compiled_code/
+          path: dist/apps/wallet-react/
           
-  merge_artifact:
-    needs: build_and_upload
-    runs-on: ubuntu-latest
+  # merge_artifact:
+  #   needs: build_and_upload
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - name: Download new compiled code
-        uses: actions/download-artifact@v4
-        with:
-          name: github-pages
-          path: compiled_code
+  #   steps:
+  #     - name: Download new compiled code
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: github-pages
+  #         path: compiled_code
           
       # - name: Download existing artifact
       #   id: download_existing
@@ -82,17 +82,17 @@ jobs:
       #     cp -r existing_compiled_code/. compiled_code/
       #     rm -rf existing_compiled_code
 
-      - name: Generate index.html
-        run: |
-          echo "<!DOCTYPE html>
-          <html>
-            <head>
-              <script>
-                window.location.href = '/develop';
-              </script>
-            </head>
-            <body></body>
-          </html>" > compiled_code/index.html
+      # - name: Generate index.html
+      #   run: |
+      #     echo "<!DOCTYPE html>
+      #     <html>
+      #       <head>
+      #         <script>
+      #           window.location.href = '/develop';
+      #         </script>
+      #       </head>
+      #       <body></body>
+      #     </html>" > compiled_code/index.html
         
       # - name: Re-upload merged compiled code
       #   if: always()
@@ -102,8 +102,8 @@ jobs:
       #     path: compiled_code/
 
   deploy:
-    needs: merge_artifact
-    # needs: build_and_upload
+    # needs: merge_artifact
+    needs: build_and_upload
 
     permissions:
       pages: write
