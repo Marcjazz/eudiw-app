@@ -38,11 +38,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # - name: Download new compiled code
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: new-github-pages
-      #     path: compiled_code
+      - name: Download new compiled code
+        uses: actions/download-artifact@v4
+        with:
+          name: new-github-pages
+          path: compiled_code
           
       # - name: Download existing artifact
       #   id: download_existing
