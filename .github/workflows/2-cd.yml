@@ -37,9 +37,9 @@ jobs:
         
       - name: Added sub directory
         run: |
-          mkdir -p compiled_code/
+          mkdir -p compiled_code/wallet-react-${branch_name}
           find dist/apps/wallet-react/ -name ".gitkeep" -type f -delete
-          mv dist/apps/wallet-react/* compiled_code/wallet-react-${branch_name}/
+          mv dist/apps/wallet-react/* compiled_code/wallet-react-${branch_name}
 
       # - name: Download existing artifact
       #   id: download_existing
