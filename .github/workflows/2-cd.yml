@@ -77,7 +77,7 @@ jobs:
       #     path: existing_compiled_code
 
       - name: Merge existing and new compiled code
-        if: success()
+        if: success() && steps.download_existing.outcome == 'success'
         run: |
           cp -r existing_compiled_code/. compiled_code/
           rm -rf existing_compiled_code
